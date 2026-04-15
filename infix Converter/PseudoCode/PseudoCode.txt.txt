@@ -1,0 +1,42 @@
+FUNCTION toPostfix(infix) → postfix:
+  output  ← ""          // result string
+  stack   ← empty Stack  // operator/parenthesis stack
+
+  FOR EACH ch IN infix DO
+
+    IF isOperand(ch) THEN
+      output ← output + ch          // directly to output
+
+    ELSE IF ch == '(' THEN
+      stack.push(ch)                  // push left paren
+
+    ELSE IF ch == ')' THEN
+      WHILE stack NOT empty AND stack.peek() ≠ '(' DO
+        output ← output + stack.pop()  // pop until '('
+      END WHILE
+      IF stack.isEmpty() THEN
+        ERROR "Mismatched parentheses"
+      stack.pop()                     // discard '('
+
+    ELSE IF isOperator(ch) THEN
+      WHILE stack NOT empty
+        AND isOperator(stack.peek())
+        AND shouldPopBefore(stack.peek(), ch) DO
+          output ← output + stack.pop()
+      END WHILE
+      stack.push(ch)
+
+    ELSE
+      ERROR "Invalid character: " + ch
+    END IF
+
+  END FOR
+
+  WHILE stack NOT empty DO      // drain remaining operators
+    IF stack.peek() == '(' THEN
+      ERROR "Mismatched parentheses"
+    output ← output + stack.pop()
+  END WHILE
+
+  RETURN output
+END FUNCTION
